@@ -1,0 +1,112 @@
+import java.util.*;
+
+class VirtualClassroomManager {
+    private Map<String, Classroom> classrooms;
+
+    public VirtualClassroomManager() {
+        this.classrooms = new HashMap<>();
+    }
+
+    public void addClassroom(String name) {
+        if (classrooms.containsKey(name)) {
+            System.out.println("Classroom " + name + " already exists.");
+        } else {
+            classrooms.put(name, new Classroom(name));
+            System.out.println("Classroom " + name + " has been created.");
+        }
+    }
+
+    public void addStudent(String studentId, String className) {
+        Classroom classroom = classrooms.get(className);
+        if (classroom != null) {
+            classroom.addStudent(studentId);
+            System.out.println("Student " + studentId + " has been enrolled in " + className + ".");
+        } else {
+            System.out.println("Classroom " + className + " does not exist.");
+        }
+    }
+
+    public void scheduleAssignment(String className, String assignmentDetails) {
+        Classroom classroom = classrooms.get(className);
+        if (classroom != null) {
+            classroom.addAssignment(assignmentDetails);
+            System.out.println("Assignment for " + className + " has been scheduled.");
+        } else {
+            System.out.println("Classroom " + className + " does not exist.");
+        }
+    }
+
+    public void submitAssignment(String studentId, String className, String assignmentDetails) {
+        Classroom classroom = classrooms.get(className);
+        if (classroom != null) {
+            classroom.submitAssignment(studentId, assignmentDetails);
+            System.out.println("Assignment submitted by Student " + studentId + " in " + className + ".");
+        } else {
+            System.out.println("Classroom " + className + " does not exist.");
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        VirtualClassroomManager manager = new VirtualClassroomManager();
+
+        while (true) {
+            System.out.println("Enter a command (or type 'exit' to quit):");
+            String input = scanner.nextLine();
+
+            if (input.equalsIgnoreCase("exit")) {
+                System.out.println("Exiting the Virtual Classroom Manager.");
+                break;
+            }
+
+            String[] parts = input.split(" ", 3);
+
+            switch (parts[0]) {
+                case "add_classroom":
+                    manager.addClassroom(parts[1]);
+                    break;
+                case "add_student":
+                    manager.addStudent(parts[1], parts[2]);
+                    break;
+                case "schedule_assignment":
+                    manager.scheduleAssignment(parts[1], parts[2]);
+                    break;
+                case "submit_assignment":
+                    String[] submitParts = input.split(" ", 4);
+                    manager.submitAssignment(submitParts[1], submitParts[2], submitParts[3]);
+                    break;
+                default:
+                    System.out.println("Unknown command.");
+                    break;
+            }
+        }
+    }
+}
+
+class Classroom {
+    private String name;
+    private Set<String> students;
+    private List<String> assignments;
+
+    public Classroom(String name) {
+        this.name = name;
+        this.students = new HashSet<>();
+        this.assignments = new ArrayList<>();
+    }
+
+    public void addStudent(String studentId) {
+        students.add(studentId);
+    }
+
+    public void addAssignment(String assignmentDetails) {
+        assignments.add(assignmentDetails);
+    }
+
+    public void submitAssignment(String studentId, String assignmentDetails) {
+        if (students.contains(studentId) && assignments.contains(assignmentDetails)) {
+            System.out.println("Assignment submitted: " + assignmentDetails);
+        } else {
+            System.out.println("Either student is not enrolled or assignment does not exist.");
+        }
+    }
+}
