@@ -1,0 +1,282 @@
+// Behavioral Design Patterns: Strategy and Observer
+// Creational Design Patterns: Singleton and Factory
+// Structural Design Patterns: Adapter and Decorator
+
+import java.util.ArrayList;
+import java.util.List;
+
+// Behavioral Design Pattern 1: Strategy
+interface Operation {
+    int doOperation(int num1, int num2);
+}
+
+class Addition implements Operation {
+    public int doOperation(int num1, int num2) {
+        return num1 + num2;
+    }
+}
+
+class Subtraction implements Operation {
+    public int doOperation(int num1, int num2) {
+        return num1 - num2;
+    }
+}
+
+class Context {
+    private Operation operation;
+
+    public void setOperation(Operation operation) {
+        this.operation = operation;
+    }
+
+    public int executeOperation(int num1, int num2) {
+        return operation.doOperation(num1, num2);
+    }
+}
+
+// Behavioral Design Pattern 2: Observer
+interface Observer {
+    void update(String message);
+}
+
+class ConcreteObserver implements Observer {
+    private String name;
+
+    public ConcreteObserver(String name) {
+        this.name = name;
+    }
+
+    public void update(String message) {
+        System.out.println(name + " received message: " + message);
+    }
+}
+
+class Subject {
+    private List<Observer> observers = new ArrayList<>();
+
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    public void notifyObservers(String message) {
+        for (Observer observer : observers) {
+            observer.update(message);
+        }
+    }
+}
+
+// Creational Design Pattern 1: Singleton
+class Singleton {
+    private static Singleton instance;
+
+    private Singleton() {}
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            instance = new Singleton();
+        }
+        return instance;
+    }
+
+    public void showMessage() {
+        System.out.println("Hello from Singleton!");
+    }
+}
+
+// Creational Design Pattern 2: Factory
+interface Shape {
+    void draw();
+}
+
+class Circle implements Shape {
+    public void draw() {
+        System.out.println("Drawing Circle");
+    }
+}
+
+class Square implements Shape {
+    public void draw() {
+        System.out.println("Drawing Square");
+    }
+}
+
+class ShapeFactory {
+    public Shape getShape(String shapeType) {
+        if (shapeType == null) {
+            return null;
+        }
+        if (shapeType.equalsIgnoreCase("CIRCLE")) {
+            return new Circle();
+        } else if (shapeType.equalsIgnoreCase("SQUARE")) {
+            return new Square();
+        }
+        return null;
+    }
+}
+
+// Structural Design Pattern 1: Adapter
+interface AdvancedMediaPlayer {
+    void playVlc(String fileName);
+    void playMp4(String fileName);
+}
+
+class VlcPlayer implements AdvancedMediaPlayer {
+    public void playVlc(String fileName) {
+        System.out.println("Playing vlc file. Name: " + fileName);
+    }
+
+    public void playMp4(String fileName) {
+        // Do nothing
+    }
+}
+
+class Mp4Player implements AdvancedMediaPlayer {
+    public void playVlc(String fileName) {
+        // Do nothing
+    }
+
+    public void playMp4(String fileName) {
+        System.out.println("Playing mp4 file. Name: " + fileName);
+    }
+}
+
+interface MediaPlayer {
+    void play(String audioType, String fileName);
+}
+
+class MediaAdapter implements MediaPlayer {
+    AdvancedMediaPlayer advancedMusicPlayer;
+
+    public MediaAdapter(String audioType) {
+        if (audioType.equalsIgnoreCase("vlc")) {
+            advancedMusicPlayer = new VlcPlayer();
+        } else if (audioType.equalsIgnoreCase("mp4")) {
+            advancedMusicPlayer = new Mp4Player();
+        }
+    }
+
+    public void play(String audioType, String fileName) {
+        if (audioType.equalsIgnoreCase("vlc")) {
+            advancedMusicPlayer.playVlc(fileName);
+        } else if (audioType.equalsIgnoreCase("mp4")) {
+            advancedMusicPlayer.playMp4(fileName);
+        }
+    }
+}
+
+class AudioPlayer implements MediaPlayer {
+    MediaAdapter mediaAdapter;
+
+    public void play(String audioType, String fileName) {
+        if (audioType.equalsIgnoreCase("mp3")) {
+            System.out.println("Playing mp3 file. Name: " + fileName);
+        } else if (audioType.equalsIgnoreCase("vlc") || audioType.equalsIgnoreCase("mp4")) {
+            mediaAdapter = new MediaAdapter(audioType);
+            mediaAdapter.play(audioType, fileName);
+        } else {
+            System.out.println("Invalid media. " + audioType + " format not supported");
+        }
+    }
+}
+
+// Structural Design Pattern 2: Decorator
+interface Car {
+    void assemble();
+}
+
+class BasicCar implements Car {
+    public void assemble() {
+        System.out.print("Basic Car.");
+    }
+}
+
+class CarDecorator implements Car {
+    protected Car decoratedCar;
+
+    public CarDecorator(Car c) {
+        this.decoratedCar = c;
+    }
+
+    public void assemble() {
+        this.decoratedCar.assemble();
+    }
+}
+
+class SportsCar extends CarDecorator {
+    public SportsCar(Car c) {
+        super(c);
+    }
+
+    public void assemble() {
+        super.assemble();
+        System.out.print(" Adding features of Sports Car.");
+    }
+}
+
+class LuxuryCar extends CarDecorator {
+    public LuxuryCar(Car c) {
+        super(c);
+    }
+
+    public void assemble() {
+        super.assemble();
+        System.out.print(" Adding features of Luxury Car.");
+    }
+}
+
+public class DesignPatternsDemo {
+    public static void main(String[] args) {
+        // Demonstrate Strategy Pattern
+        Context context = new Context();
+
+        context.setOperation(new Addition());
+        System.out.println("10 + 5 = " + context.executeOperation(10, 5));
+
+        context.setOperation(new Subtraction());
+        System.out.println("10 - 5 = " + context.executeOperation(10, 5));
+
+        // Demonstrate Observer Pattern
+        Subject subject = new Subject();
+
+        Observer observer1 = new ConcreteObserver("Observer 1");
+        Observer observer2 = new ConcreteObserver("Observer 2");
+
+        subject.addObserver(observer1);
+        subject.addObserver(observer2);
+
+        subject.notifyObservers("Event 1 occurred");
+
+        // Demonstrate Singleton Pattern
+        Singleton singleton = Singleton.getInstance();
+        singleton.showMessage();
+
+        // Demonstrate Factory Pattern
+        ShapeFactory shapeFactory = new ShapeFactory();
+
+        Shape shape1 = shapeFactory.getShape("CIRCLE");
+        shape1.draw();
+
+        Shape shape2 = shapeFactory.getShape("SQUARE");
+        shape2.draw();
+
+        // Demonstrate Adapter Pattern
+        AudioPlayer audioPlayer = new AudioPlayer();
+
+        audioPlayer.play("mp3", "song.mp3");
+        audioPlayer.play("mp4", "video.mp4");
+        audioPlayer.play("vlc", "movie.vlc");
+        audioPlayer.play("avi", "myMovie.avi");
+
+        // Demonstrate Decorator Pattern
+        Car sportsCar = new SportsCar(new BasicCar());
+        sportsCar.assemble();
+        System.out.println("\n*****");
+
+        Car sportsLuxuryCar = new SportsCar(new LuxuryCar(new BasicCar()));
+        sportsLuxuryCar.assemble();
+    }
+}
